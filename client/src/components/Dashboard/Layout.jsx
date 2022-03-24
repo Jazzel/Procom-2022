@@ -30,6 +30,8 @@ import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
 import Filters from "./Filters";
 import { Avatar, Button, Menu, MenuItem, Tooltip } from "@mui/material";
+import AddModal from "./AddModal";
+import { logout } from "../../actions/auth";
 
 const drawerWidth = 240;
 
@@ -147,10 +149,14 @@ const Drawer = styled(MuiDrawer, {
 const settings = [
   { page: "Profile", url: "/" },
   { page: "Dashboard", url: "/dashboard" },
-  { page: "Logout", url: "/logout" },
 ];
 
-const Layout = ({ children, auth: { isAuthenticated, loading } }) => {
+const Layout = ({
+  children,
+  auth: { isAuthenticated, loading, user },
+  logout,
+  boardUser,
+}) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
@@ -171,9 +177,9 @@ const Layout = ({ children, auth: { isAuthenticated, loading } }) => {
     setOpen(false);
   };
 
-  // if (!isAuthenticated) {
-  //   navigate("/");
-  // }
+  if (!isAuthenticated) {
+    navigate("/");
+  }
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -195,41 +201,6 @@ const Layout = ({ children, auth: { isAuthenticated, loading } }) => {
           >
             <MenuIcon />
           </IconButton>
-          <Box sx={{ flexGrow: 0, float: "right" }}>
-            <Tooltip title="User options">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
-
-            <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {settings.map(({ page, url }) => (
-                <MenuItem key={page} onClick={handleCloseUserMenu}>
-                  <Link
-                    to={url}
-                    style={{ textDecoration: "none", color: "black" }}
-                  >
-                    <Typography textAlign="center">{page}</Typography>
-                  </Link>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
 
           <Typography
             className="styled-font"
@@ -249,6 +220,62 @@ const Layout = ({ children, auth: { isAuthenticated, loading } }) => {
               inputProps={{ "aria-label": "search" }}
             />
           </Search>
+          {isAuthenticated && user.color && (
+            <>
+              <Typography>
+                Board User : {boardUser.first_name + " " + boardUser.last_name}
+              </Typography>
+              <Box sx={{ flexGrow: 1, float: "right" }}>
+                <Tooltip title="User options">
+                  <IconButton
+                    onClick={handleOpenUserMenu}
+                    sx={{ p: 0, float: "right" }}
+                  >
+                    <div
+                      style={{
+                        backgroundColor: user.color || "#fff",
+                        color: "#fff",
+                      }}
+                    >
+                      {user.thumbnail}
+                    </div>
+                    {/* <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" /> */}
+                  </IconButton>
+                </Tooltip>
+
+                <Menu
+                  sx={{ mt: "45px" }}
+                  id="menu-appbar"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                >
+                  {settings.map(({ page, url }) => (
+                    <MenuItem key={page} onClick={handleCloseUserMenu}>
+                      <Link
+                        to={url}
+                        style={{ textDecoration: "none", color: "black" }}
+                      >
+                        <Typography textAlign="center">{page}</Typography>
+                      </Link>
+                    </MenuItem>
+                  ))}
+                  <MenuItem onClick={() => logout()}>
+                    <Typography textAlign="center">Logout</Typography>
+                  </MenuItem>
+                </Menu>
+              </Box>
+            </>
+          )}
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
@@ -332,6 +359,7 @@ const Layout = ({ children, auth: { isAuthenticated, loading } }) => {
             ))}
         </List>
         <Divider />
+        <AddModal />
         {/* <List>
           {["Go back to site"].map((text, index) => (
             <ListItemButton
@@ -360,7 +388,6 @@ const Layout = ({ children, auth: { isAuthenticated, loading } }) => {
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
         <Alert />
-        <Filters />
         <section>{children}</section>
       </Box>
     </Box>
@@ -368,12 +395,13 @@ const Layout = ({ children, auth: { isAuthenticated, loading } }) => {
 };
 
 Layout.propTypes = {
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node,
   auth: PropTypes.object.isRequired,
+  logout: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   auth: state.auth,
 });
 
-export default connect(mapStateToProps, {})(Layout);
+export default connect(mapStateToProps, { logout })(Layout);

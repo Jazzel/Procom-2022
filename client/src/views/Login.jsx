@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { login } from "../actions/auth";
@@ -8,6 +8,7 @@ import { Button, Container, TextField, Typography } from "@mui/material";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 
 const Login = ({ login, isAuthenticated }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -24,7 +25,7 @@ const Login = ({ login, isAuthenticated }) => {
   };
   // Redirect if logged in
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" />;
+    navigate("/dashboard");
   }
   return (
     <Layout>

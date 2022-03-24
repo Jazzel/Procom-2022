@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
 import { setAlert } from "../actions/alert";
 import { register } from "../actions/auth";
@@ -10,14 +10,16 @@ import { Button, Container, TextField, Typography } from "@mui/material";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 
 const Register = ({ setAlert, register, isAuthenticated }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: "",
+    first_name: "",
+    last_name: "",
     email: "",
     password: "",
     password2: "",
   });
 
-  const { name, email, password, password2 } = formData;
+  const { first_name, last_name, email, password, password2 } = formData;
 
   const onChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,13 +30,14 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
     if (password !== password2) {
       setAlert("Passwords do not match", "error");
     } else {
-      register({ name, email, password });
+      register({ first_name, last_name, email, password });
+      navigate("/");
     }
   };
 
   // Redirect if logged in
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" />;
+    Navigate("/");
   }
   return (
     <Layout>
@@ -53,12 +56,26 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
             <TextField
               style={{ width: "50%" }}
               required
-              id="name"
-              label="Name"
+              id="first_name"
+              label="First Name"
               type="text"
-              placeholder="Name"
-              value={name}
-              name="name"
+              placeholder="First Name"
+              value={first_name}
+              name="first_name"
+              onChange={(e) => onChange(e)}
+            />
+          </div>
+          <br />
+          <div className="form-group">
+            <TextField
+              style={{ width: "50%" }}
+              required
+              id="last_name"
+              label="Last Name"
+              type="text"
+              placeholder="Last Name"
+              value={last_name}
+              name="last_name"
               onChange={(e) => onChange(e)}
             />
           </div>

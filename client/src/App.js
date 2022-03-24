@@ -11,9 +11,15 @@ import Contact from "./views/Contact";
 import Dashboard from "./views/Dashboard";
 import Home from "./views/Home";
 import Login from "./views/Login";
+import React from "react";
 import Register from "./views/Register";
+import { loadUser } from "./actions/auth";
 
 const App = () => {
+  React.useEffect(() => {
+    console.log(localStorage.getItem("user"));
+    if (localStorage.getItem("user")) store.dispatch(loadUser());
+  }, [localStorage.getItem("user")]);
   return (
     <Provider store={store}>
       <Router>

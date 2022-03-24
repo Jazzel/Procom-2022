@@ -18,13 +18,8 @@ import AddIcon from "@mui/icons-material/Add";
 import { Button, TextField } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Task from "./Task";
-
-const tasks = [
-  { id: 1, name: "Task 1" },
-  { id: 2, name: "Task 2" },
-  { id: 3, name: "Task 3" },
-  { id: 4, name: "Task 4" },
-];
+import { addTask } from "../../actions/board";
+import { connect } from "react-redux";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -37,12 +32,17 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-const CustomCard = ({ title, id }) => {
+const CustomCard = ({ title, id, label, tasks, addTask, users }) => {
   const [expanded, setExpanded] = React.useState(false);
+
+  console.log(users);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
+
+  const [taskTitle, setTaskTitle] = React.useState("");
+  const [taskDes, setTaskDes] = React.useState("");
 
   return (
     <Card sx={{ width: "100%", margin: 1 }}>
@@ -52,21 +52,44 @@ const CustomCard = ({ title, id }) => {
             {title[0]}
           </Avatar>
         }
-        action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
-        }
+        // action={
+        //   <IconButton aria-label="settings">
+        //     {/* <MoreVertIcon /> */}
+        //   </IconButton>
+        // }
         title={title}
         sx={{ fontSize: 20 }}
       />
       <CardContent sx={{ backgroundColor: "#EDEDED" }}>
         <Typography variant="body2" color="text.secondary">
-          {tasks.map(({ name, id }) => (
-            <div style={{ padding: "5px 0" }} key={id}>
-              <Task name={name} id={id} />
-            </div>
-          ))}
+          {tasks &&
+            Object.values(tasks) &&
+            Object.values(tasks).map(
+              ({
+                title,
+                id,
+                label,
+                label_id,
+                updates,
+                member_id,
+                member,
+                description,
+              }) => (
+                <div style={{ padding: "5px 0" }} key={id}>
+                  <Task
+                    title={title}
+                    id={id}
+                    label={label}
+                    label_id={label_id}
+                    updates={updates}
+                    member_id={member_id}
+                    member={member}
+                    description={description}
+                    users={users}
+                  />
+                </div>
+              )
+            )}
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
@@ -88,11 +111,22 @@ const CustomCard = ({ title, id }) => {
               id="title"
               label="Add new task"
               placeholder="Enter title for the task"
+              sx={{ width: "100%", mb: 2 }}
+              value={taskTitle}
+              onChange={(e) => setTaskTitle(e.target.value)}
+            />
+            <TextField
+              required
+              id="description"
+              label="Description"
+              placeholder="Enter description for the task"
               multiline
               rows={3}
+              value={taskDes}
+              onChange={(e) => setTaskDes(e.target.value)}
               sx={{ width: "100%", mb: 2 }}
             />
-            <Button type="submit" variant="contained">
+            <Button variant="contained" onClick={() => addTask(id, taskDes)}>
               Add
             </Button>
           </form>
@@ -102,4 +136,6 @@ const CustomCard = ({ title, id }) => {
   );
 };
 
-export default CustomCard;
+const mapStateToProps = (state) => ({});
+
+export default connect(mapStateToProps, { addTask })(CustomCard);

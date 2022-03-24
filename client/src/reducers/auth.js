@@ -27,8 +27,12 @@ export default function auth(state = initialState, action) {
         user: payload,
       };
     case REGISTER_SUCCESS:
+      return {
+        ...state,
+      };
     case LOGIN_SUCCESS:
       localStorage.setItem("token", payload.token);
+      localStorage.setItem("user", JSON.stringify(payload.user));
       return {
         ...state,
         ...payload,

@@ -19,10 +19,10 @@ export const loadUser = () => async (dispatch) => {
     setAuthToken(localStorage.token);
   }
   try {
-    const res = await axios.get(`${HOST}/api/auth`);
+    // const res = await axios.get(`${HOST}/api/auth`);
     dispatch({
       type: USER_LOADED,
-      payload: res.data,
+      payload: JSON.parse(localStorage.getItem("user")),
     });
   } catch (error) {
     dispatch({
@@ -33,7 +33,7 @@ export const loadUser = () => async (dispatch) => {
 
 // Register User
 export const register =
-  ({ name, email, password }) =>
+  ({ first_name, last_name, email, password }) =>
   async (dispatch) => {
     const config = {
       headers: {
@@ -41,15 +41,15 @@ export const register =
       },
     };
 
-    const body = JSON.stringify({ name, email, password });
+    const body = JSON.stringify({ first_name, last_name, email, password });
 
     try {
-      const res = await axios.post(`${HOST}/api/users`, body, config);
+      const res = await axios.post(`${HOST}/register`, body, config);
       dispatch({
         type: REGISTER_SUCCESS,
-        payload: res.data,
+        // payload: res.data,
       });
-      dispatch(loadUser());
+      // dispatch(loadUser());
     } catch (error) {
       const errors = error.response.data.errors;
 
@@ -74,12 +74,21 @@ export const login = (email, password) => async (dispatch) => {
   const body = JSON.stringify({ email, password });
 
   try {
-    const res = await axios.post(`${HOST}/api/auth`, body, config);
-    dispatch({
-      type: LOGIN_SUCCESS,
-      payload: res.data,
-    });
-    dispatch(loadUser());
+    const res = await axios.post(`${HOST}/login`, body, config);
+    console.log(res.data);
+    if (!res.data.message) {
+      dispatch({
+        type: LOGIN_SUCCESS,
+        payload: res.data,
+      });
+      dispatch(loadUser());
+    } else {
+      const error = res.data;
+      dispatch(setAlert(error.message, "error"));
+      dispatch({
+        type: LOGIN_FAIL,
+      });
+    }
   } catch (error) {
     const errors = error.response.data.errors;
 
